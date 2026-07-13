@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Midterm 2 :: Practice Console</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#0b0e11;
+  --panel:#12161b;
+  --panel2:#181d24;
+  --border:#232a33;
+  --amber:#ffb300;
+  --amber-dim:#8a6110;
+  --cyan:#5fd3c4;
+  --green:#3ecf8e;
+  --red:#ff6b6b;
+  --text:#d7dde3;
+  --text-dim:#7c8794;
+  --mono:'JetBrains Mono', monospace;
+  --sans:'Inter', sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.5;
+  min-height:100vh;
+}
+::selection{background:var(--amber);color:#000;}
+
+/* terminal banner */
+.termbar{
+  background:linear-gradient(180deg,#14181e,#0f1216);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--text-dim);
+}
+.termbar .dots{display:inline-flex;gap:6px;margin-right:12px;vertical-align:middle;}
+.termbar .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.d1{background:#ff5f56;} .d2{background:#ffbd2e;} .d3{background:#27c93f;}
+.termbar .prompt{color:var(--amber);}
+.termbar .path{color:var(--cyan);}
+.cursor{display:inline-block;width:7px;height:14px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite;margin-left:2px;}
+@keyframes blink{50%{opacity:0;}}
+
+header.hero{
+  padding:28px 24px 8px;
+  max-width:980px;
+  margin:0 auto;
+}
+header.hero h1{
+  font-family:var(--mono);
+  font-size:clamp(22px,3.4vw,32px);
+  margin:0 0 6px;
+  color:#fff;
+  letter-spacing:-0.5px;
+}
+header.hero h1 span{color:var(--amber);}
+header.hero p{color:var(--text-dim);margin:0 0 18px;font-size:14px;}
+
+nav.tabs{
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+  max-width:980px;
+  margin:0 auto;
+  padding:0 24px;
+  border-bottom:1px solid var(--border);
+}
+nav.tabs button{
+  background:transparent;
+  border:none;
+  color:var(--text-dim);
+  font-family:var(--mono);
+  font-size:13px;
+  padding:10px 14px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:.15s;
+}
+nav.tabs button:hover{color:var(--text);}
+nav.tabs button.active{color:var(--amber);border-bottom-color:var(--amber);}
+
+main{max-width:980px;margin:0 auto;padding:24px;}
+.section{display:none;}
+.section.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.ref-block{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:16px 18px;
+  margin-bottom:18px;
+}
+.ref-block h3{
+  margin:0 0 4px;
+  color:var(--amber);
+  font-family:var(--mono);
+  font-size:14px;
+}
+.ref-block p.ref-sub{
+  margin:0 0 14px;
+  color:var(--text-dim);
+  font-size:13px;
+}
+table.ref-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+table.ref-table th, table.ref-table td{
+  border:1px solid var(--border);
+  padding:8px 10px;
+  text-align:left;
+  vertical-align:top;
+}
+table.ref-table th{
+  background:var(--panel2);
+  color:var(--cyan);
+  font-family:var(--mono);
+  font-weight:600;
+}
+table.ref-table tr:nth-child(even) td{ background:rgba(255,255,255,0.015); }
+.ref-list{ list-style:none; margin:0; padding:0; }
+.ref-list li{
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+  font-size:13.5px;
+}
+.ref-list li:last-child{ border-bottom:none; }
+.ref-list b{ color:var(--green); }
+
+.q{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:16px 18px;
+  margin-bottom:12px;
+}
+.q .qnum{
+  font-family:var(--mono);
+  color:var(--amber);
+  font-size:12px;
+  margin-bottom:6px;
+  display:block;
+}
+.q .qtext{font-size:14.5px;margin-bottom:10px;color:#eef1f4;}
+.q pre{
+  background:#08090b;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:10px 12px;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--cyan);
+  margin:8px 0;
+}
+.opt{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:6px 8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  transition:.12s;
+}
+.opt:hover{background:var(--panel2);}
+.opt input{margin-top:3px;accent-color:var(--amber);}
+.opt.correct{background:rgba(62,207,142,.12);color:var(--green);}
+.opt.incorrect{background:rgba(255,107,107,.12);color:var(--red);}
+
+.tf-row{display:flex;gap:10px;margin-top:4px;}
+.tf-row label{
+  border:1px solid var(--border);
+  padding:6px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+  font-family:var(--mono);
+}
+.tf-row input{margin-right:6px;accent-color:var(--amber);}
+
+.explain{
+  font-size:12.5px;
+  color:var(--text-dim);
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed var(--border);
+  display:none;
+}
+.explain.show{display:block;}
+
+select.matchsel{
+  width:100%;
+  background:#08090b;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:8px 10px;
+  font-family:var(--mono);
+  font-size:12.5px;
+}
+select.matchsel.correct{border-color:var(--green);color:var(--green);}
+select.matchsel.incorrect{border-color:var(--red);color:var(--red);}
+.match-desc-ref{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 18px;
+  margin-bottom:16px;
+  font-size:12.5px;
+  color:var(--text-dim);
+}
+.match-desc-ref b{color:var(--cyan);}
+
+.btn{
+  background:var(--amber);
+  color:#0b0e11;
+  border:none;
+  font-family:var(--mono);
+  font-weight:700;
+  font-size:13px;
+  padding:10px 18px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:.15s;
+}
+.btn:hover{background:#ffc733;}
+.btn.ghost{
+  background:transparent;
+  color:var(--text-dim);
+  border:1px solid var(--border);
+  font-weight:500;
+}
+.btn.ghost:hover{color:var(--text);border-color:var(--text-dim);}
+
+.scorebar{
+  position:sticky;
+  bottom:0;
+  background:var(--panel2);
+  border-top:1px solid var(--border);
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.scorebar .score{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+.scorebar .score b{color:var(--amber);font-size:16px;}
+
+textarea.codearea{
+  width:100%;
+  min-height:220px;
+  background:#08090b;
+  color:#e8e8e8;
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-family:var(--mono);
+  font-size:12.8px;
+  padding:12px;
+  resize:vertical;
+  tab-size:2;
+}
+.code-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.testresult{
+  margin-top:12px;
+  font-family:var(--mono);
+  font-size:12.5px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:#08090b;
+  padding:10px 12px;
+  max-height:340px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+}
+.tline{padding:2px 0;}
+.pass{color:var(--green);}
+.fail{color:var(--red);}
+.info{color:var(--text-dim);}
+.assume{
+  font-size:11.5px;
+  color:var(--amber-dim);
+  margin-top:6px;
+}
+.textarea-plain{
+  width:100%;
+  min-height:100px;
+  background:#08090b;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-family:var(--sans);
+  font-size:13.5px;
+  padding:10px 12px;
+  resize:vertical;
+}
+.model-answer{
+  display:none;
+  margin-top:10px;
+  padding:12px 14px;
+  background:rgba(95,211,196,.06);
+  border:1px solid var(--cyan);
+  border-radius:6px;
+  font-size:13px;
+  color:#cfeeea;
+}
+.model-answer.show{display:block;}
+.badge{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:10.5px;
+  padding:2px 7px;
+  border-radius:10px;
+  background:var(--panel2);
+  color:var(--text-dim);
+  border:1px solid var(--border);
+  margin-left:8px;
+}
+</style>
+</head>
+<body>
+
+
+
+<header class="hero">
+  <h1><span>&gt;</span> Midterm 2 Practice</h1>
+  <p>Server-side processing &middot; Async JS &middot; Express/REST &middot; Real-time communication. Sections A&ndash;C auto-grade instantly. Section D is self-check. Section E actually runs your code against test cases.</p>
+</header>
+
+<nav class="tabs">
+  <button data-tab="mc" class="active">A · Multiple Choice</button>
+  <button data-tab="tf">B · True/False</button>
+  <button data-tab="match">C · Matching</button>
+  <button data-tab="short">D · Short Answer</button>
+  <button data-tab="code">E · Code Lab</button>
+  <button data-tab="ref">F · Reference</button>
+</nav>
+
+<main>
+
+  <!-- SECTION A: MC -->
+  <section class="section active" id="section-mc">
+    <div id="mc-list"></div>
+  </section>
+
+  <!-- SECTION B: TF -->
+  <section class="section" id="section-tf">
+    <div id="tf-list"></div>
+  </section>
+
+  <!-- SECTION C: MATCH -->
+  <section class="section" id="section-match">
+    <div class="match-desc-ref" id="match-ref"></div>
+    <div id="match-list"></div>
+  </section>
+
+  <!-- SECTION D: SHORT ANSWER -->
+  <section class="section" id="section-short">
+    <div id="short-list"></div>
+  </section>
+
+  <!-- SECTION E: CODE -->
+  <section class="section" id="section-code">
+    <div id="code-list"></div>
+  </section>
+
+  <!-- SECTION F: REFERENCE -->
+  <section class="section" id="section-ref">
+    <div class="ref-block">
+      <h3>Big Picture — the whole landscape at a glance</h3>
+      <p class="ref-sub">Real-Time &amp; Inter-Service Communication techniques compared</p>
+      <table class="ref-table">
+        <thead><tr><th>Technique</th><th>Direction</th><th>Connection</th><th>Latency</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td>Polling</td><td>Client → Server</td><td>Repeated short HTTP</td><td>Med–High</td><td>Simple periodic checks</td></tr>
+          <tr><td>Long Polling</td><td>Client ⇄ Server</td><td>Held HTTP request</td><td>Med</td><td>Legacy near-real-time</td></tr>
+          <tr><td>SSE</td><td>Server → Client</td><td>One open HTTP stream</td><td>Low</td><td>Live feeds &amp; notifications</td></tr>
+          <tr><td>WebSockets</td><td>Client ⇄ Server</td><td>Persistent socket</td><td>Very low</td><td>Chat, games, dashboards</td></tr>
+          <tr><td>gRPC</td><td>Service ⇄ Service</td><td>HTTP/2 + protobuf</td><td>Very low</td><td>Internal microservices</td></tr>
+          <tr><td>tRPC</td><td>Client → Server</td><td>HTTP (TS only)</td><td>Low</td><td>Full-stack TypeScript apps</td></tr>
+          <tr><td>RabbitMQ</td><td>Producer → Consumer</td><td>Broker + queues</td><td>Low (async)</td><td>Task queues &amp; jobs</td></tr>
+          <tr><td>Kafka</td><td>Producer → Consumer</td><td>Distributed log</td><td>Low (async)</td><td>Event streaming at scale</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-block">
+      <h3>Cheat sheet — which one should I use?</h3>
+      <p class="ref-sub">Quick decision guide</p>
+      <ul class="ref-list">
+        <li>Just need occasional fresh data? → <b>Polling</b> — simplest thing that works.</li>
+        <li>Server → browser live feed, one-way? → <b>SSE</b> — built-in, auto-reconnect.</li>
+        <li>Two-way, low-latency (chat, games)? → <b>WebSockets</b> (or Socket.IO).</li>
+        <li>Fast calls between internal services? → <b>gRPC</b> — contract-first &amp; binary.</li>
+        <li>Full-stack TypeScript, one repo? → <b>tRPC</b> — end-to-end type safety.</li>
+        <li>Async jobs / decouple services? → <b>RabbitMQ</b> — reliable task queue.</li>
+        <li>Huge event streams, replayable? → <b>Kafka</b> — distributed event log.</li>
+      </ul>
+    </div>
+
+    <div class="ref-block">
+      <h3>Java Servlets vs. Node.js</h3>
+      <p class="ref-sub">Criteria comparison</p>
+      <table class="ref-table">
+        <thead><tr><th>Criteria</th><th>Java Servlets</th><th>Node.js</th></tr></thead>
+        <tbody>
+          <tr><td>Performance</td><td>High performance with multi-threading, compiled execution.</td><td>Event-driven, non-blocking I/O model, great for real-time apps.</td></tr>
+          <tr><td>Scalability</td><td>Robust enterprise scalability, higher memory for heavy traffic.</td><td>Highly scalable for I/O tasks, but CPU-bound tasks are challenging.</td></tr>
+          <tr><td>Development Speed &amp; Ecosystem</td><td>Steeper learning curve, large range of frameworks (Spring, Java EE).</td><td>Faster development with unified JavaScript and a large NPM ecosystem.</td></tr>
+          <tr><td>Community Support &amp; Libraries</td><td>Extensive, mature libraries and frameworks, popular in enterprise applications.</td><td>Highly active community, growing support for real-time applications.</td></tr>
+          <tr><td>Use Cases</td><td>Ideal for CPU-intensive, secure, enterprise-level applications (banking, healthcare, finance).</td><td>Best for I/O-intensive apps, real-time apps, and lightweight microservices.</td></tr>
+          <tr><td>Learning Curve</td><td>Requires deeper understanding of Java EE architecture.</td><td>Easier for developers familiar with JavaScript and asynchronous programming.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ref-block">
+      <h3>Networking basics</h3>
+      <p class="ref-sub">localhost, loopback &amp; ports</p>
+      <ul class="ref-list">
+        <li><b>localhost</b> refers to the computer you are currently using — it always points back to your own machine.</li>
+        <li>The <b>loopback address</b> is <b>127.0.0.1</b>, the IP address a machine uses to refer to itself.</li>
+        <li>A <b>port number</b> identifies a specific process or service on a device — think of it as a "door" into the computer (e.g. port 3000 for your Express app).</li>
+        <li><b>IP addresses</b> uniquely identify devices on a network, letting client and server locate and communicate with each other.</li>
+        <li>Binding a server to <b>127.0.0.1 / localhost</b> means only that machine can connect. Binding to <b>0.0.0.0</b> accepts connections from any network interface, which is what lets external machines reach it.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<div class="scorebar">
+  <div class="score" id="scoretext">Answer questions, then hit Check.</div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn ghost" id="resetBtn">Reset section</button>
+    <button class="btn" id="checkBtn">Check answers</button>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+
+const MC = [
+["Which of the following best describes server-side processing?",
+["Running code in the user's browser to handle UI interactions","Running backend code on a web server to handle client requests, interact with databases, and send responses","Storing data on the client's local machine","Compiling JavaScript into machine code"],1],
+["Which technology is built on Chrome's V8 engine and uses an event-driven, non-blocking I/O model?",
+["Java Servlets","PHP","Node.js","Apache Tomcat"],2],
+["What is the key advantage of using Node.js for I/O-bound tasks?",
+["It uses a multi-threaded model for handling requests","Its non-blocking I/O model makes it efficient for handling large numbers of concurrent requests","It requires less memory than any other server-side technology","It can only be used for CPU-intensive tasks"],1],
+["Which of the following is a Java EE component for building dynamic web applications?",
+["Node.js","Express.js","Java Servlets","Django"],2],
+["What is the difference between `let` and `const` in JavaScript?",
+["`let` is block-scoped and immutable; `const` is function-scoped and mutable","`let` is block-scoped and mutable; `const` is block-scoped and immutable","`let` is function-scoped; `const` is block-scoped","There is no difference between `let` and `const`"],1],
+["What is the `fs` module in Node.js used for?",
+["Creating HTTP servers","Interacting with the file system","Parsing JSON data","Handling WebSocket connections"],1],
+["Which of the following is NOT a valid way to define a variable in JavaScript?",
+['`var name = "John";`',"`let age = 25;`",'`constant PI = 3.14;`',"`const PI = 3.14;`"],2],
+["What is the purpose of NPM (Node Package Manager)?",
+["To compile JavaScript code into machine code","To manage and install packages/dependencies for Node.js projects","To debug Node.js applications","To deploy Node.js applications to the cloud"],1],
+["What are the three states of a JavaScript Promise?",
+["Start, Middle, End","Pending, Fulfilled, Rejected","Open, Closed, Error","Init, Success, Failure"],1],
+["What is the purpose of `Promise.race()`?",
+["It waits for all promises to resolve","It settles with the result of the first promise to settle","It creates a new promise that always resolves","It converts a callback into a promise"],1],
+['Which of the following best describes "Callback Hell"?',
+["A function that calls itself recursively","Deeply nested callbacks that make code difficult to read and maintain","An error that occurs when a callback is not defined","A design pattern for handling asynchronous errors"],1],
+["What is the difference between `Promise.all()` and `Promise.race()`?",
+["`Promise.all()` waits for all promises; `Promise.race()` waits for the first to settle","`Promise.all()` waits for the first; `Promise.race()` waits for all","Both wait for all promises to resolve","Both wait for the first promise to settle"],0],
+["What does the `await` keyword do in JavaScript?",
+["It pauses the execution of an async function until a Promise resolves","It creates a new Promise","It converts a synchronous function to asynchronous","It rejects a Promise"],0],
+["Which of the following correctly defines an async function?",
+["`function async myFunction() { ... }`","`async function myFunction() { ... }`","`function myFunction() async { ... }`","`async() => function { ... }`"],1],
+["What is the purpose of `.catch()` in Promise chaining?",
+["To handle resolved values","To handle rejected values (errors)","To create a new Promise","To stop the Promise chain"],1],
+["Which of the following is an example of asynchronous code in JavaScript?",
+["`const result = 2 + 2;`",'`setTimeout(() => console.log("Hello"), 1000);`',"`for (let i = 0; i < 10; i++) { console.log(i); }`",'`const name = "Alice";`'],1],
+["What does this output?\n\nconsole.log('1');\nsetTimeout(() => console.log('2'), 0);\nconsole.log('3');",
+["1, 2, 3","1, 3, 2","2, 1, 3","3, 1, 2"],1],
+["In the context of `Promise.race()`, what is a common use case?",
+["Implementing a timeout for an asynchronous operation","Converting XML to JSON","Creating a new HTTP server","Validating user input"],0],
+["What is Express.js?",
+["A database management system","A fast, minimalist web framework for Node.js","A templating language","A testing framework"],1],
+["What is the purpose of middleware in Express.js?",
+["To handle database connections","To perform tasks like logging, authentication, and parsing data between the request and response","To render HTML templates","To compile CSS files"],1],
+["What happens if you define middleware in Express and never call `next()`?",
+["The request will time out and display an error","The browser will hang and never display a response","The server will crash","The middleware will be skipped"],1],
+["Which HTTP method is used to retrieve data from a server?",
+["POST","PUT","GET","DELETE"],2],
+['Which HTTP status code indicates "Not Found"?',
+["200","404","500","301"],1],
+["In the URL `http://localhost:3000/books/42`, what is `/books/42` called?",
+["Query string","Route or endpoint","Protocol","Hostname"],1],
+["Which of the following is NOT a valid HTTP method for a REST API?",
+["GET","POST","FETCH","DELETE"],2],
+["What is JSON primarily used for in REST APIs?",
+["To style web pages","To format and exchange data between client and server","To define database schemas","To encrypt communication"],1],
+["What is the main drawback of traditional HTTP polling for real-time features?",
+["It is too secure","It results in many wasted requests and higher latency","It requires WebSocket support","It only works with Node.js"],1],
+["Which technology provides a full-duplex, bidirectional communication channel over a single persistent connection?",
+["HTTP Polling","Server-Sent Events (SSE)","WebSockets","Long Polling"],2],
+["What is a key limitation of Server-Sent Events (SSE)?",
+["It is not supported by any modern browser","It is unidirectional (server to client only)","It requires WebSocket support","It cannot send JSON data"],1],
+["Which protocol is built on HTTP/2 and uses Protocol Buffers for high-performance service-to-service communication?",
+["REST","GraphQL","gRPC","tRPC"],2],
+["What is 'localhost' often used to refer to in computer networking?",
+["A remote cloud server","The computer you are currently using","A DNS lookup service","The default gateway router"],1],
+["What is the IP address commonly known as the loopback address?",
+["0.0.0.0","192.168.0.1","127.0.0.1","255.255.255.0"],2],
+["What is the purpose of a port number in networking?",
+["It encrypts traffic between client and server","It identifies a specific process or service on a device, like a \"door\" into the computer","It stores the server's IP address","It compresses HTTP responses"],1],
+["A company deploys an internal Node.js service. Users inside the company network can reach `http://localhost:5000/dashboard`, but external users cannot. What is the MOST likely reason?",
+["The firewall blocks all traffic","The service is bound to localhost/127.0.0.1 instead of 0.0.0.0, so it only accepts connections from the same machine","Node.js does not support external requests","The port number is invalid"],1],
+["What does LTS stand for in the context of Node.js releases, and what does it indicate?",
+["Long-Term Support — a more stable version than \"Current\"","Live Type System — a runtime type checker","Local Testing Suite — a built-in test runner","Latest Time Snapshot — the newest nightly build"],0],
+["What is a route parameter in Express, such as the `:id` in `/books/:id`?",
+["A query string appended after a `?`","A value captured from the URL and made available on `req.params`","A header sent with every request","A global variable shared across all routes"],1],
+["What is Socket.IO?",
+["A low-level replacement for TCP sockets","A library that uses WebSocket by default but falls back gracefully to other techniques, adding features like auto-reconnect and rooms","A Node.js module for reading files","A database driver for real-time queries"],1],
+["What is the main caveat of using gRPC directly from a web browser?",
+["gRPC cannot use HTTP/2","Browsers can't speak raw gRPC; a proxy like gRPC-Web is needed","gRPC only works with Python","Browsers block all binary data"],1],
+["What is a Protocol Buffer (protobuf)?",
+["A human-readable text format like JSON","The binary, schema-driven format gRPC uses on the wire, smaller and faster to (de)serialize than JSON","A type of WebSocket frame","An HTTP request header"],1],
+["What is tRPC?",
+["A REST framework for Python","A library that lets a TypeScript client call server procedures with full type-safety, without REST routes or GraphQL schemas","A message broker for microservices","A templating engine for Express"],1],
+["What is the main advantage of tRPC regarding types?",
+["It removes the need for a server entirely","It provides end-to-end type safety — renaming a field on the server causes an immediate client-side error","It compiles TypeScript to WebAssembly","It auto-generates a REST API from a database schema"],1],
+["What is the primary purpose of a Message Queue?",
+["To store static files for a website","To enable asynchronous service-to-service communication by decoupling producers and consumers via a broker","To cache database queries","To render HTML on the server"],1],
+["In RabbitMQ, what is the role of a Producer?",
+["It receives and processes messages from a queue","It sends/publishes messages to the broker","It stores messages permanently","It authenticates users"],1],
+["What is Apache Kafka best described as?",
+["A relational database","A distributed, append-only commit log built for huge throughput, where events are durably stored and can be re-read","A caching layer for web servers","A single-threaded message queue"],1],
+["What is a Consumer Group in Kafka?",
+["A single consumer that reads every partition alone","A group of consumers that share the workload by splitting the partitions of a topic","A group of producers writing to the same topic","A backup cluster for disaster recovery"],1],
+["What is a key difference between RabbitMQ and Kafka regarding message consumption?",
+["RabbitMQ retains messages forever; Kafka deletes them instantly","RabbitMQ removes a message once it's consumed and acknowledged, while Kafka retains messages and tracks consumer position via an offset, enabling replay","They behave identically","Kafka cannot have multiple consumers"],1],
+["In Express.js with EJS, what does `app.set('view engine', 'ejs')` do?",
+["Installs the EJS npm package","Configures Express to use EJS as the templating engine for rendering views","Creates a new EJS file","Starts the server on a specific port"],1],
+];
+
+const TF = [
+["Java Servlets use a single-threaded model to handle client requests.", false, "Java Servlets use a multi-threaded model to handle concurrent requests."],
+["Node.js is single-threaded by design and uses an event loop to handle asynchronous operations.", true, "Correct — one thread, event loop handles the async work."],
+["A Promise in JavaScript starts in the \"Fulfilled\" state.", false, "A Promise starts in the \"Pending\" state."],
+["The `await` keyword can be used outside of an `async` function.", false, "`await` can only be used inside an `async` function (or at a module's top level)."],
+["In Express.js, middleware functions must always call `next()` to continue processing.", false, "Middleware must call `next()` OR send a response to end the request — not always `next()`."],
+["The HTTP method POST is used to update an existing resource.", false, "POST creates new resources; PUT/PATCH update existing ones."],
+["A 404 status code indicates the server experienced an internal error.", false, "404 is \"Not Found\"; 500 is \"Internal Server Error\"."],
+["WebSockets are bidirectional, meaning both client and server can send messages at any time.", true, "Correct — full-duplex communication."],
+["Server-Sent Events (SSE) are bidirectional like WebSockets.", false, "SSE is unidirectional: server → client only."],
+["`Promise.race()` is commonly used to implement timeouts for asynchronous operations.", true, "Correct — race the operation against a timer promise."],
+["Binding a Node.js server to `localhost` (127.0.0.1) allows users on other machines to access it over the network.", false, "Binding to localhost/127.0.0.1 only accepts connections from the same machine. Use 0.0.0.0 to accept external connections."],
+["Socket.IO always uses raw WebSocket with no fallback mechanism.", false, "Socket.IO uses WebSocket by default but falls back gracefully to other techniques (like long polling) when needed."],
+["Kafka retains messages after they've been consumed, allowing consumers to replay them via an offset.", true, "Correct — unlike a traditional queue, Kafka keeps messages and tracks each consumer's position."],
+["RabbitMQ removes a message from the queue once it has been consumed and acknowledged.", true, "Correct — RabbitMQ behaves like a traditional queue, deleting messages after acknowledgment."],
+["gRPC uses JSON as its default wire format, the same as REST APIs.", false, "gRPC uses Protocol Buffers (protobuf), a binary format, not JSON."],
+["tRPC requires you to write a separate GraphQL schema to achieve type safety.", false, "tRPC achieves end-to-end type safety directly from TypeScript types — no REST routes, GraphQL schemas, or code generation needed."],
+];
+
+const MATCH_CONCEPTS = ["Node.js","Java Servlets","Promise","Callback Hell","Express.js","Middleware","WebSockets","SSE","REST","gRPC","RabbitMQ","Kafka","tRPC","Socket.IO"];
+const MATCH_DESC = {
+  A:"A placeholder for a value that may not be available yet; has states: pending, fulfilled, rejected",
+  B:"An architectural style for building web services using HTTP methods like GET, POST, PUT, DELETE",
+  C:"A JavaScript runtime built on Chrome's V8 engine for server-side scripting",
+  D:"A situation where deeply nested callbacks make code difficult to read and maintain",
+  E:"Java EE component for building dynamic web applications",
+  F:"A minimalist web framework for Node.js",
+  G:"Code that runs between the request and response in Express.js",
+  H:"A protocol providing full-duplex, bidirectional communication over a single persistent connection",
+  I:"A high-performance RPC framework built on HTTP/2 and Protocol Buffers",
+  J:"A unidirectional server-to-client streaming technology",
+  K:"A mature open-source message broker built on AMQP that routes messages from producers to consumer queues, removing them once acknowledged",
+  L:"A distributed, append-only commit log built for huge throughput, where events are durably stored and can be replayed",
+  M:"A TypeScript library enabling end-to-end type-safe client-server calls without REST routes or GraphQL schemas",
+  N:"A library that uses WebSocket by default but falls back gracefully to other techniques, adding auto-reconnect and rooms",
+};
+const MATCH_ANSWERS = ["C","E","A","D","F","G","H","J","B","I","K","L","M","N"]; // index-aligned to MATCH_CONCEPTS
+
+const SHORT = [
+["Explain the difference between synchronous (blocking) and asynchronous (non-blocking) code in JavaScript. Provide one example of each.",
+`Synchronous (blocking): code runs line by line, each operation must finish before the next starts. A long task freezes everything else.
+e.g. a while-loop busy-wait for 3 seconds blocks all other code.
+
+Asynchronous (non-blocking): a long-running operation is started, and the program keeps executing other code while it's in progress, picking the result up later via a callback/promise.
+e.g. setTimeout(() => console.log("done"), 3000) followed immediately by other console.log calls that run first.`],
+["Describe the three states of a Promise and explain what happens in each state.",
+`Pending: initial state, the async operation hasn't finished yet.
+Fulfilled (resolved): the operation succeeded; the value is passed to .then()/await.
+Rejected: the operation failed; the reason (error) is passed to .catch() or a try/catch around await.
+A Promise can only move from Pending to Fulfilled or Rejected once — never back, never both.`],
+["Explain the difference between `Promise.all()` and `Promise.race()`. Provide a use case for each.",
+`Promise.all(): waits for every promise to resolve; rejects immediately if any one rejects. Use case: fetching user + posts + settings in parallel when you need all of them before continuing.
+Promise.race(): settles as soon as the first promise settles (resolve or reject). Use case: implementing a timeout by racing a real request against a timer promise, or taking whichever of several mirrored API calls responds first.`],
+["What is the purpose of middleware in Express.js? Give three examples of what middleware can be used for.",
+`Middleware is code that runs between an incoming request and the outgoing response, with access to req, res, and next(). Examples: (1) logging every request's method/path/timestamp, (2) authentication — checking a user is logged in before hitting protected routes, (3) parsing request bodies (express.json(), express.urlencoded()). Also commonly used for centralized error handling and serving static files.`],
+["Compare and contrast traditional polling, long polling, SSE, and WebSockets. Include direction and when to use each.",
+`Traditional polling: client → server, repeated short requests on a timer. Simple, but wastes requests. Use for low-frequency checks.
+Long polling: client → server, the server holds the request open until there's new data, then the client reopens it. Near-real-time fallback when WebSockets aren't available.
+SSE: server → client only, one persistent HTTP connection the server streams updates over. Good for live feeds/dashboards/notifications (read-only).
+WebSockets: client ↔ server, full-duplex over one persistent socket. Best for chat, gaming, collaborative apps — anything needing two-way real-time messaging.
+Overall: efficiency and real-time capability increase as you move Polling → Long Polling → SSE → WebSockets.`],
+["Explain the difference between a \"well-formed\" XML document and a \"valid\" XML document.",
+`Well-formed: follows basic XML syntax rules — matching/self-closing tags, proper nesting, quoted attribute values, case-sensitive tag names.
+Valid: is well-formed AND additionally conforms to a DTD or XML Schema that defines which elements/attributes are allowed and how they relate.
+Every valid document is well-formed, but a well-formed document isn't necessarily valid — it may just have no DTD to check it against.`],
+["What is a Message Queue and what are its main benefits? Name two message queue technologies.",
+`A Message Queue is a method of asynchronous service-to-service communication that uses a broker to decouple producers (senders) from consumers (receivers), letting messages wait safely if a consumer is temporarily down.
+Benefits: decoupling of services, resilience (messages aren't lost if a consumer is offline), load leveling, scalability, and support for background/async work.
+Examples: RabbitMQ (a traditional broker built on AMQP) and Apache Kafka (a distributed, replayable event log).`],
+["Explain the key difference between RabbitMQ and Kafka regarding how messages are consumed and retained.",
+`RabbitMQ behaves like a traditional queue: once a message is consumed and acknowledged by a consumer, it is removed from the queue.
+Kafka behaves like a durable, append-only log: messages are retained even after being read, and each consumer tracks its own position with an offset. This means multiple consumers (or consumer groups) can independently replay or re-read the same events.
+In short: RabbitMQ = "deliver and delete"; Kafka = "durable log you can replay."`],
+["What is tRPC and what is its main advantage over REST or GraphQL for a full-stack TypeScript project?",
+`tRPC is a library that lets a TypeScript client call server-side procedures directly, with full type-safety and autocomplete — without defining REST routes, a GraphQL schema, or running code generation.
+Main advantage: end-to-end type safety. Because the client imports the server's types directly, renaming or changing a field on the server immediately produces a type error on the client at compile time, catching mismatches before runtime.`],
+["How would you set up EJS as the templating engine in an Express app, and render a template with data? Provide a short code example.",
+`Set the view engine and (optionally) the views directory, then use res.render() in a route handler, passing an object of data that becomes available inside the .ejs template.
+
+const express = require('express');
+const app = express();
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+app.get('/users', (req, res) => {
+  res.render('users', { users: [{ id: 1, name: 'Alice' }] });
+});
+
+Inside views/users.ejs, data is accessed with <%= %> (escaped output) or <% %> (control flow, e.g. a forEach loop) to dynamically generate HTML from the passed-in data.`],
+];
+
+/* ================= RENDER: MC ================= */
+const mcList = document.getElementById('mc-list');
+MC.forEach((item,i)=>{
+  const [q,opts,ans] = item;
+  const div = document.createElement('div');
+  div.className='q';
+  div.innerHTML = `<span class="qnum">Q${i+1}</span><div class="qtext">${q.replace(/\n/g,'<br>')}</div>` +
+    opts.map((o,j)=>`<label class="opt" data-correct="${j===ans}"><input type="radio" name="mc${i}" value="${j}">${o}</label>`).join('');
+  mcList.appendChild(div);
+});
+
+/* ================= RENDER: TF ================= */
+const tfList = document.getElementById('tf-list');
+TF.forEach((item,i)=>{
+  const [q,ans,exp] = item;
+  const div=document.createElement('div');
+  div.className='q';
+  div.innerHTML = `<span class="qnum">Q${MC.length+1+i}</span><div class="qtext">${q}</div>
+  <div class="tf-row">
+    <label><input type="radio" name="tf${i}" value="true">True</label>
+    <label><input type="radio" name="tf${i}" value="false">False</label>
+  </div>
+  <div class="explain" data-ans="${ans}">${exp}</div>`;
+  tfList.appendChild(div);
+});
+
+/* ================= RENDER: MATCH ================= */
+document.getElementById('match-ref').innerHTML = '<b>Descriptions</b><br>' +
+  Object.entries(MATCH_DESC).map(([k,v])=>`<b>${k}.</b> ${v}`).join('<br>');
+const matchList = document.getElementById('match-list');
+MATCH_CONCEPTS.forEach((c,i)=>{
+  const div=document.createElement('div');
+  div.className='q';
+  const opts = Object.keys(MATCH_DESC).map(k=>`<option value="${k}">${k}</option>`).join('');
+  div.innerHTML = `<span class="qnum">${i+1}</span><div class="qtext">${c}</div>
+  <select class="matchsel" data-correct="${MATCH_ANSWERS[i]}" id="match${i}">
+    <option value="">— choose —</option>${opts}
+  </select>`;
+  matchList.appendChild(div);
+});
+
+/* ================= RENDER: SHORT ================= */
+const shortList = document.getElementById('short-list');
+SHORT.forEach((item,i)=>{
+  const [q,model]=item;
+  const div=document.createElement('div');
+  div.className='q';
+  div.innerHTML = `<span class="qnum">Q${MC.length+TF.length+1+i}</span><div class="qtext">${q}</div>
+  <textarea class="textarea-plain" placeholder="Type your answer here..."></textarea>
+  <div style="margin-top:8px;"><button class="btn ghost revealBtn">Show model answer</button></div>
+  <div class="model-answer">${model.replace(/\n/g,'<br>')}</div>`;
+  shortList.appendChild(div);
+});
+shortList.addEventListener('click', e=>{
+  if(e.target.classList.contains('revealBtn')){
+    const ma = e.target.closest('.q').querySelector('.model-answer');
+    ma.classList.toggle('show');
+    e.target.textContent = ma.classList.contains('show') ? 'Hide model answer' : 'Show model answer';
+  }
+});
+
+/* ================= TAB SWITCHING ================= */
+const tabs = document.querySelectorAll('nav.tabs button');
+const sections = document.querySelectorAll('.section');
+const scorebar = document.querySelector('.scorebar');
+tabs.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    sections.forEach(s=>s.classList.remove('active'));
+    document.getElementById('section-'+btn.dataset.tab).classList.add('active');
+    document.getElementById('scoretext').textContent = 'Answer questions, then hit Check.';
+    scorebar.style.display = (btn.dataset.tab==='short' || btn.dataset.tab==='code' || btn.dataset.tab==='ref') ? 'none' : 'flex';
+  });
+});
+
+/* ================= CHECK / RESET (MC, TF, MATCH) ================= */
+function activeTab(){ return document.querySelector('nav.tabs button.active').dataset.tab; }
+
+document.getElementById('checkBtn').addEventListener('click',()=>{
+  const tab = activeTab();
+  if(tab==='mc'){
+    let correct=0;
+    MC.forEach((item,i)=>{
+      const opts = document.querySelectorAll(`input[name="mc${i}"]`);
+      let picked=null;
+      opts.forEach(o=>{ if(o.checked) picked=o; });
+      opts.forEach(o=>{
+        const label=o.closest('.opt');
+        label.classList.remove('correct','incorrect');
+        if(label.dataset.correct==='true') label.classList.add('correct');
+        else if(o===picked) label.classList.add('incorrect');
+      });
+      if(picked && picked.closest('.opt').dataset.correct==='true') correct++;
+    });
+    document.getElementById('scoretext').innerHTML = `Section A: <b>${correct} / ${MC.length}</b> correct`;
+  }
+  if(tab==='tf'){
+    let correct=0;
+    TF.forEach((item,i)=>{
+      const opts = document.querySelectorAll(`input[name="tf${i}"]`);
+      let picked=null;
+      opts.forEach(o=>{ if(o.checked) picked=o; });
+      const exp = document.querySelector(`#section-tf .q:nth-child(${i+1}) .explain`);
+      exp.classList.add('show');
+      const isRight = picked && (picked.value===String(item[1]));
+      exp.style.color = isRight ? 'var(--green)' : 'var(--red)';
+      if(isRight) correct++;
+    });
+    document.getElementById('scoretext').innerHTML = `Section B: <b>${correct} / ${TF.length}</b> correct`;
+  }
+  if(tab==='match'){
+    let correct=0;
+    MATCH_CONCEPTS.forEach((c,i)=>{
+      const sel = document.getElementById('match'+i);
+      sel.classList.remove('correct','incorrect');
+      if(sel.value===sel.dataset.correct){ sel.classList.add('correct'); correct++; }
+      else if(sel.value!=='') sel.classList.add('incorrect');
+    });
+    document.getElementById('scoretext').innerHTML = `Section C: <b>${correct} / ${MATCH_CONCEPTS.length}</b> correct`;
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  const tab = activeTab();
+  if(tab==='mc'){
+    document.querySelectorAll('#section-mc input[type=radio]').forEach(i=>i.checked=false);
+    document.querySelectorAll('#section-mc .opt').forEach(l=>l.classList.remove('correct','incorrect'));
+  }
+  if(tab==='tf'){
+    document.querySelectorAll('#section-tf input[type=radio]').forEach(i=>i.checked=false);
+    document.querySelectorAll('#section-tf .explain').forEach(e=>e.classList.remove('show'));
+  }
+  if(tab==='match'){
+    document.querySelectorAll('.matchsel').forEach(s=>{s.value='';s.classList.remove('correct','incorrect');});
+  }
+  document.getElementById('scoretext').textContent = 'Answer questions, then hit Check.';
+});
+
+// hide scorebar for short/code by default since it starts on mc tab (visible) — fine.
+</script>
+
+<script>
+/* ================= SECTION E: CODE LAB ================= */
+
+function hardTimeout(promise, ms, msg){
+  let t;
+  const timeout = new Promise((_,rej)=>{ t=setTimeout(()=>rej(new Error(msg||'timed out')), ms); });
+  return Promise.race([promise, timeout]).finally(()=>clearTimeout(t));
+}
+function deepEq(a,b){ return JSON.stringify(a)===JSON.stringify(b); }
+
+function buildFactory(userCode, paramNames){
+  // returns a function(...args) that runs userCode with given param names in scope,
+  // and returns whatever the code assigns to `module.exports` OR we retrieve named idents after.
+  return new Function(...paramNames, userCode);
+}
+function extractIdentifiers(userCode, names){
+  // runs userCode then returns an object with the requested top-level function/const names if defined
+  const tail = names.map(n=>`typeof ${n}!=='undefined' ? ${n} : undefined`).join(', ');
+  const fn = new Function(userCode + `\nreturn [${tail}];`);
+  const vals = fn();
+  const out = {};
+  names.forEach((n,i)=>out[n]=vals[i]);
+  return out;
+}
+
+const CODE_Q = [];
+
+/* --- Q47 fetchUserData --- */
+CODE_Q.push({
+  id:47,
+  title:'C1 · Promise Creation',
+  prompt:`Write a function <code>fetchUserData(fail)</code> that returns a Promise:
+  <ul><li>resolves (after some delay) with <code>{ id: 1, name: "Alice" }</code></li>
+  <li>rejects if <code>fail</code> is <code>true</code></li></ul>`,
+  starter:`function fetchUserData(fail = false) {
+  // your code here — return a new Promise
+}`,
+  assume:'Tests call fetchUserData() and fetchUserData(true). Any delay is fine (kept short for testing).',
+  run: async (code, log)=>{
+    const {fetchUserData} = extractIdentifiers(code, ['fetchUserData']);
+    if(typeof fetchUserData !== 'function'){ log('fail','fetchUserData is not defined.'); return; }
+    try{
+      const val = await hardTimeout(Promise.resolve(fetchUserData()), 4000, 'fetchUserData() never settled');
+      if(deepEq(val,{id:1,name:'Alice'})) log('pass','fetchUserData() resolved with { id: 1, name: "Alice" }');
+      else log('fail',`fetchUserData() resolved with ${JSON.stringify(val)}, expected {"id":1,"name":"Alice"}`);
+    }catch(e){ log('fail','fetchUserData() should resolve by default, but it rejected: '+e.message); }
+    try{
+      await hardTimeout(Promise.resolve(fetchUserData(true)), 4000, 'fetchUserData(true) never settled');
+      log('fail','fetchUserData(true) should reject, but it resolved.');
+    }catch(e){ log('pass','fetchUserData(true) rejected as expected.'); }
+  }
+});
+
+/* --- Q48 Promise chaining --- */
+CODE_Q.push({
+  id:48,
+  title:'C2 · Promise Chaining (.then)',
+  prompt:`Given <code>getUser()</code>, <code>getPosts(userId)</code>, <code>getComments(postId)</code> (provided for you, already in scope — don't redefine them), write <code>.then()</code> chaining code that gets a user, then their posts, then comments on the first post, logs the final comments as <code>console.log("Final Comments:", comments)</code>, and includes <code>.catch()</code> + <code>.finally()</code>.`,
+  starter:`getUser()
+  .then(user => getPosts(user.id))
+  // continue the chain...
+`,
+  assume:'getUser/getPosts/getComments are injected mocks — just chain off them, do not write function getUser(){...} yourself.',
+  run: async (code, log)=>{
+    const logs = [];
+    const fakeConsole = { log:(...a)=>logs.push(a.join(' ')), error:(...a)=>logs.push('ERR:'+a.join(' ')) };
+    const getUser = ()=> new Promise(res=>setTimeout(()=>res({id:1,name:'Alice'}),40));
+    const getPosts = (id)=> new Promise(res=>setTimeout(()=>res([{id:101,title:'Post 1'},{id:102,title:'Post 2'}]),40));
+    const getComments = (id)=> new Promise(res=>setTimeout(()=>res(['Great post!','Thanks for sharing']),40));
+    try{
+      const factory = new Function('getUser','getPosts','getComments','console', code);
+      factory(getUser, getPosts, getComments, fakeConsole);
+    }catch(e){ log('fail','Error while running your code: '+e.message); return; }
+    await new Promise(r=>setTimeout(r,400)); // let the chain settle
+    const joined = logs.join(' | ');
+    if(joined.includes('Great post!') && joined.includes('Thanks for sharing'))
+      log('pass','Chain resolved and logged the comments for the first post.');
+    else
+      log('fail','Did not see the expected comments logged. Captured output: '+(joined||'(nothing logged)'));
+  }
+});
+
+/* --- Q49 async/await version --- */
+CODE_Q.push({
+  id:49,
+  title:'C3 · Async/Await version',
+  prompt:`Rewrite Q48 using <code>async/await</code> with <code>try/catch/finally</code> instead of <code>.then()</code> chaining. Define and call an <code>async function</code> (any name) that logs the final comments the same way.`,
+  starter:`async function showUserComments() {
+  // your code here
+}
+showUserComments();`,
+  assume:'Must contain the `await` keyword (syntactic check) and produce the same logged output as Q48.',
+  run: async (code, log)=>{
+    if(!/\\bawait\\b/.test(code)){ log('fail','No `await` keyword found — this should use async/await.'); return; }
+    const logs = [];
+    const fakeConsole = { log:(...a)=>logs.push(a.join(' ')), error:(...a)=>logs.push('ERR:'+a.join(' ')) };
+    const getUser = ()=> new Promise(res=>setTimeout(()=>res({id:1,name:'Alice'}),40));
+    const getPosts = (id)=> new Promise(res=>setTimeout(()=>res([{id:101,title:'Post 1'},{id:102,title:'Post 2'}]),40));
+    const getComments = (id)=> new Promise(res=>setTimeout(()=>res(['Great post!','Thanks for sharing']),40));
+    try{
+      const factory = new Function('getUser','getPosts','getComments','console', code);
+      factory(getUser, getPosts, getComments, fakeConsole);
+    }catch(e){ log('fail','Error while running your code: '+e.message); return; }
+    await new Promise(r=>setTimeout(r,400));
+    const joined = logs.join(' | ');
+    if(joined.includes('Great post!') && joined.includes('Thanks for sharing'))
+      log('pass','async/await version produced the expected comments output.');
+    else
+      log('fail','Did not see the expected comments logged. Captured output: '+(joined||'(nothing logged)'));
+  }
+});
+
+/* --- shared mini express mock for Q50/Q51 --- */
+function makeMockExpress(){
+  let captured = null;
+  function factory(){
+    const routes = {get:[],put:[],post:[],delete:[]};
+    const app = {
+      use(){},
+      get(p,h){routes.get.push({p,h});},
+      put(p,h){routes.put.push({p,h});},
+      post(p,h){routes.post.push({p,h});},
+      delete(p,h){routes.delete.push({p,h});},
+      listen(port,cb){ if(typeof cb==='function') cb(); }
+    };
+    app._routes = routes;
+    captured = app;
+    return app;
+  }
+  factory.json = ()=> (req,res,next)=>{ if(next) next(); };
+  factory.urlencoded = ()=> (req,res,next)=>{ if(next) next(); };
+  function fakeRequire(name){
+    if(name==='express') return factory;
+    throw new Error("Cannot find module '"+name+"'");
+  }
+  return { fakeRequire, getApp: ()=>captured };
+}
+function mockRes(){
+  const res = { _status:200, _json:null };
+  res.status = function(c){ res._status=c; return res; };
+  res.json = function(o){ res._json=o; return res; };
+  res.send = function(o){ res._json=o; return res; };
+  return res;
+}
+function findRoute(app, method, path){
+  return app && app._routes[method].find(r=>r.p===path);
+}
+
+/* --- Q50 Express server --- */
+CODE_Q.push({
+  id:50,
+  title:'C4 · Express Server',
+  prompt:`Write a complete Express server: port 3000, <code>GET /hello</code> → <code>{ message: "Hello, World!" }</code>, and <code>GET /users/:id</code> returning a hardcoded user (404 if not found).`,
+  starter:`const express = require('express');
+const app = express();
+const PORT = 3000;
+
+const users = [
+  { id: 1, name: "Alice" },
+];
+
+// define routes here
+
+app.listen(PORT);`,
+  assume:'Tests call your route handlers directly (no real network/port). Assumes a user with id 1 exists.',
+  run: async (code, log)=>{
+    const {fakeRequire, getApp} = makeMockExpress();
+    try{
+      const factory = new Function('require', code);
+      factory(fakeRequire);
+    }catch(e){ log('fail','Error while running your code: '+e.message); return; }
+    const app = getApp();
+    if(!app){ log('fail','No Express app was created (did you call express()?)'); return; }
+
+    const hello = findRoute(app,'get','/hello');
+    if(!hello){ log('fail','No GET /hello route found.'); }
+    else{
+      const res = mockRes();
+      hello.h({params:{},body:{}}, res);
+      if(res._json && res._json.message==='Hello, World!') log('pass','GET /hello returned the correct message.');
+      else log('fail','GET /hello returned '+JSON.stringify(res._json)+', expected { message: "Hello, World!" }');
+    }
+
+    const userRoute = findRoute(app,'get','/users/:id');
+    if(!userRoute){ log('fail','No GET /users/:id route found.'); }
+    else{
+      const res1 = mockRes();
+      userRoute.h({params:{id:'1'}, body:{}}, res1);
+      if(res1._json && res1._json.id===1) log('pass','GET /users/1 returned a matching user.');
+      else log('fail','GET /users/1 returned '+JSON.stringify(res1._json)+', expected an object with id 1.');
+
+      const res2 = mockRes();
+      userRoute.h({params:{id:'9999'}, body:{}}, res2);
+      if(res2._status===404) log('pass','GET /users/9999 (missing) correctly returned 404.');
+      else log('fail','GET /users/9999 returned status '+res2._status+', expected 404.');
+    }
+  }
+});
+
+/* --- Q51 PUT /books/:id --- */
+CODE_Q.push({
+  id:51,
+  title:'C5 · PUT /books/:id',
+  prompt:`Write an Express route handler for <code>PUT /books/:id</code>: finds a book by id, updates title/author from <code>req.body</code>, 404 if not found, 400 if no update fields provided, otherwise returns the updated book.`,
+  starter:`const express = require('express');
+const app = express();
+app.use(express.json());
+
+let books = [
+  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+];
+
+// define app.put('/books/:id', ...) here
+`,
+  assume:'Assumes a book with id 1 exists and id 9999 does not.',
+  run: async (code, log)=>{
+    const {fakeRequire, getApp} = makeMockExpress();
+    try{
+      const factory = new Function('require', code);
+      factory(fakeRequire);
+    }catch(e){ log('fail','Error while running your code: '+e.message); return; }
+    const app = getApp();
+    if(!app){ log('fail','No Express app was created (did you call express()?)'); return; }
+    const route = findRoute(app,'put','/books/:id');
+    if(!route){ log('fail','No PUT /books/:id route found.'); return; }
+
+    const rOk = mockRes();
+    route.h({params:{id:'1'}, body:{title:'New Title'}}, rOk);
+    if(rOk._json && JSON.stringify(rOk._json).includes('New Title')) log('pass','Valid update returned the new title.');
+    else log('fail','Valid update returned '+JSON.stringify(rOk._json)+', expected something containing "New Title".');
+
+    const rMissing = mockRes();
+    route.h({params:{id:'9999'}, body:{title:'X'}}, rMissing);
+    if(rMissing._status===404) log('pass','Unknown id correctly returned 404.');
+    else log('fail','Unknown id returned status '+rMissing._status+', expected 404.');
+
+    const rEmpty = mockRes();
+    route.h({params:{id:'1'}, body:{}}, rEmpty);
+    if(rEmpty._status===400) log('pass','Empty body correctly returned 400.');
+    else log('fail','Empty body returned status '+rEmpty._status+', expected 400.');
+  }
+});
+
+/* --- Q52 withTimeout --- */
+CODE_Q.push({
+  id:52,
+  title:'C6 · Promise.race Timeout',
+  prompt:`Write <code>withTimeout(promise, timeoutMs)</code> using <code>Promise.race()</code>: resolves with the original value if it finishes in time, otherwise rejects with a timeout error.`,
+  starter:`function withTimeout(promise, timeoutMs) {
+  // your code here
+}`,
+  assume:'Tests a fast promise (should resolve) and a slow promise vs a short timeout (should reject).',
+  run: async (code, log)=>{
+    const {withTimeout} = extractIdentifiers(code, ['withTimeout']);
+    if(typeof withTimeout !== 'function'){ log('fail','withTimeout is not defined.'); return; }
+    try{
+      const fast = new Promise(res=>setTimeout(()=>res('done'),20));
+      const val = await hardTimeout(Promise.resolve(withTimeout(fast,300)), 2000, 'withTimeout never settled');
+      if(val==='done') log('pass','Fast promise within timeout resolved correctly.');
+      else log('fail','Expected "done", got '+JSON.stringify(val));
+    }catch(e){ log('fail','Fast promise should resolve but threw: '+e.message); }
+    try{
+      const slow = new Promise(res=>setTimeout(()=>res('too late'),1000));
+      await hardTimeout(Promise.resolve(withTimeout(slow,80)), 2000, 'withTimeout never settled');
+      log('fail','Slow promise should have rejected due to timeout, but it resolved.');
+    }catch(e){
+      log('pass','Slow promise correctly rejected once the timeout elapsed.');
+    }
+  }
+});
+
+/* ---- render code lab ---- */
+const codeList = document.getElementById('code-list');
+CODE_Q.forEach((item,idx)=>{
+  const div = document.createElement('div');
+  div.className='q';
+  div.innerHTML = `<span class="qnum">${item.title}</span>
+  <div class="qtext">${item.prompt}</div>
+  <textarea class="codearea" id="code${idx}" spellcheck="false">${item.starter}</textarea>
+  <div class="assume">Assumption: ${item.assume}</div>
+  <div class="code-actions">
+    <button class="btn" data-idx="${idx}">Run tests</button>
+    <button class="btn ghost" data-reset="${idx}">Reset code</button>
+  </div>
+  <div class="testresult" id="result${idx}" style="display:none;"></div>`;
+  codeList.appendChild(div);
+});
+
+// Q53 short-answer style (no auto test)
+(function(){
+  const div = document.createElement('div');
+  div.className='q';
+  div.innerHTML = `<span class="qnum">C7 · WebSockets vs SSE</span>
+  <div class="qtext">Explain, in 2–3 sentences, why you would choose WebSockets over Server-Sent Events for a real-time chat application.</div>
+  <textarea class="textarea-plain" placeholder="Type your answer here..."></textarea>
+  <div style="margin-top:8px;"><button class="btn ghost revealBtn53">Show model answer</button></div>
+  <div class="model-answer" id="ma53">WebSockets are better for chat because they're full-duplex — both client and server can send messages any time over one persistent connection. SSE is unidirectional (server → client only), so the client would need separate HTTP requests to send messages, adding latency and overhead compared to WebSockets' single low-overhead channel.</div>`;
+  codeList.appendChild(div);
+  div.querySelector('.revealBtn53').addEventListener('click',(e)=>{
+    const ma = document.getElementById('ma53');
+    ma.classList.toggle('show');
+    e.target.textContent = ma.classList.contains('show') ? 'Hide model answer' : 'Show model answer';
+  });
+})();
+
+codeList.addEventListener('click', async (e)=>{
+  if(e.target.dataset.idx!==undefined && e.target.tagName==='BUTTON' && e.target.classList.contains('btn') && !e.target.classList.contains('ghost')){
+    const idx = e.target.dataset.idx;
+    if(idx===undefined || idx==='') return;
+    const i = parseInt(idx);
+    if(isNaN(i)) return;
+    const item = CODE_Q[i];
+    const code = document.getElementById('code'+i).value;
+    const resultBox = document.getElementById('result'+i);
+    resultBox.style.display='block';
+    resultBox.innerHTML = '<span class="info">Running...</span>';
+    const lines = [];
+    let passCount=0, total=0;
+    const log = (kind,msg)=>{
+      total++;
+      if(kind==='pass') passCount++;
+      lines.push(`<div class="tline ${kind}">[${kind==='pass'?'✓':'✗'}] ${msg}</div>`);
+    };
+    try{
+      await item.run(code, log);
+    }catch(err){
+      lines.push(`<div class="tline fail">[✗] Unexpected error running tests: ${err.message}</div>`);
+    }
+    resultBox.innerHTML = lines.join('') + `<div class="tline info" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;">${passCount}/${total} checks passed</div>`;
+  }
+  if(e.target.dataset.reset!==undefined && e.target.tagName==='BUTTON'){
+    const i = parseInt(e.target.dataset.reset);
+    if(isNaN(i)) return;
+    document.getElementById('code'+i).value = CODE_Q[i].starter;
+    document.getElementById('result'+i).style.display='none';
+  }
+});
+</script>
+
+</body>
+</html>
